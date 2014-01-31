@@ -12,14 +12,13 @@ module Janky
       def initialize(settings)
         @token = settings["JANKY_CHAT_SLACK_TOKEN"]
         @team_name = settings["JANKY_CHAT_SLACK_TEAM"]
-        @room_names = settings["JANKY_CHAT_SLACK_ROOM"] ? settings["JANKY_CHAT_SLACK_ROOM"].split(",") : []
         @from = settings["JANKY_CHAT_SLACK_FROM"] || "CI"
         raise Error, "JANKY_CHAT_SLACK_TOKEN setting is required" unless @token
         raise Error, "JANKY_CHAT_SLACK_TEAM setting is required" unless @token
       end
 
       def speak(message, room_id, opts={})
-        payload = {text: message}
+        payload = {text: message, username: @from}
         payload.merge!({ channel: room_id }) if room_id
         req = Net::HTTP::Post.new "#{uri.path}?#{uri.query}"
         req.body = payload.to_json
@@ -34,7 +33,8 @@ module Janky
       end
 
       def rooms
-        @rooms ||= room_names.map { |name| Room.new(name, name) }
+        #TODO get the room names out of slack
+        @rooms = []
       end
 
     end
