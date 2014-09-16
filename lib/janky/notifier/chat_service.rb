@@ -2,10 +2,16 @@ module Janky
   module Notifier
     class ChatService
       def self.completed(build)
-        status = build.green? ? "was successful" : "failed"
-        color = build.green? ? "green" : "red"
+        ::Janky::ChatService.speak(message(build), build.room_id, {:color => color(build)})
+      end
 
-        message = "Build #%s (%s) of %s/%s %s (%ss) %s" % [
+      def self.color(build)
+        build.green? ? "green" : "red"
+      end
+
+      def self.message(build)
+        status = build.green? ? "was successful" : "failed"
+        "Build #%s (%s) of %s/%s %s (%ss) %s" % [
           build.number,
           build.short_sha1,
           build.repo_name,
@@ -14,8 +20,6 @@ module Janky
           build.duration,
           build.web_url
         ]
-
-        ::Janky::ChatService.speak(message, build.room_id, {:color => color})
       end
     end
   end
